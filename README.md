@@ -14,7 +14,7 @@
 
 - [html & css](https://github.com/coderzelin/frontend-stystem/blob/master/html%20%26%20css.md)
 
-- js基础
+- [js基础](https://github.com/coderzelin/frontend-stystem/blob/master/js%20%E5%9F%BA%E7%A1%80.md)
 
 - js笔试题
 
