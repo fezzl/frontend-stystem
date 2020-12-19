@@ -8,7 +8,7 @@
 
 ### RoadMap
 
-![image](/Users/zhangzelin/Desktop/study/frontend-system/assets/前端知识体系.png)
+![image]('./assets/前端知识体系.png')
 
 ### 知识体系
 
