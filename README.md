@@ -8,7 +8,7 @@
 
 ### RoadMap
 
-![image]('./assets/前端知识体系.png')
+![image](https://raw.githubusercontent.com/coderzelin/frontend-stystem/master/assets/%E5%89%8D%E7%AB%AF%E7%9F%A5%E8%AF%86%E4%BD%93%E7%B3%BB.png)
 
 ### 知识体系
 
