@@ -2,7 +2,7 @@
 
 - 简介：meta 是元数据，用于描述数据的数据，它不会显示在页面上，但是会被机器识别
 - 作用：meta 通常用于定义页面的说明，关键字，最后修改日期等元数据，这些元数据可以被浏览器页面，搜索引擎和其他网络服务所使用
-- 组成：mata 标签有四个个属性，分别是 name、content、http-equiv、charset
+- 组成：mata 标签有四个属性，分别是 name、content、http-equiv、charset
 
 #### name 属性
 
@@ -65,6 +65,8 @@ http-equiv 有如下的参数
 - public: 可以被任意机器缓存，包括客户端，代理服务器等
 - private: 只能被客户端缓存，不能被代理服务器缓存
 
+---
+
 ### position
 
 - static
@@ -80,9 +82,7 @@ http-equiv 有如下的参数
 
 ---
 
-
-
-## flex 布局
+### flex 布局
 
 flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex item，通过下面两种方式声明 flex 布局，设置 flex 布局之后子元素的 float、clear、vertical-align 属性将会失效
 
@@ -111,7 +111,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .container {
-   	flex-wrap: nowrap | wrap | wrap-reverse;
+     flex-wrap: nowrap | wrap | wrap-reverse;
    }
    ```
 
@@ -196,7 +196,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .item {
-   	flex-grow: <number>;
+   	 flex-grow: <number>;
    }
    ```
 
@@ -216,7 +216,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .item {
-   		flex: none | [ <'flex-grow'> <'flex-shrink'>? || <'flex-basis'> ]
+   	flex: none | [ <'flex-grow'> <'flex-shrink'>? || <'flex-basis'> ]
    }
    ```
 
