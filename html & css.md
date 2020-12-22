@@ -98,7 +98,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .container {
-     flex-direction: row | row-reverse | column | column-reverse
+      flex-direction: row | row-reverse | column | column-reverse
    }
    ```
 
@@ -111,7 +111,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .container {
-     flex-wrap: nowrap | wrap | wrap-reverse;
+      flex-wrap: nowrap | wrap | wrap-reverse;
    }
    ```
 
@@ -123,7 +123,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .container {
-   	flex-flow: <flex-direction> || <flex-wrap>;
+   	  flex-flow: <flex-direction> || <flex-wrap>;
    }
    ```
 
@@ -131,7 +131,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .container {
-   	justify-content: flex-start | flex-end | center | space-between | space-around
+   	  justify-content: flex-start | flex-end | center | space-between | space-around
    }
    ```
 
@@ -145,7 +145,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .container {
-   	align-items: flex-start | flex-end | center | baseline | stretch;
+   	  align-items: flex-start | flex-end | center | baseline | stretch;
    }
    ```
 
@@ -159,7 +159,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .container {
-   	align-content: flex-start | flex-end | center | space-between | space-around | stretch;
+   	  align-content: flex-start | flex-end | center | space-between | space-around | stretch;
    }
    ```
 
@@ -176,7 +176,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .item {
-   	order: <integer>;
+   	  order: <integer>;
    }
    ```
 
@@ -184,7 +184,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .item {
-   	flex-basis: <length> | auto;
+   	  flex-basis: <length> | auto;
    }
    ```
 
@@ -196,7 +196,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .item {
-   	 flex-grow: <number>;
+   	  flex-grow: <number>;
    }
    ```
 
@@ -206,7 +206,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .item {
-   	flex-shrink: <number>;
+   	  flex-shrink: <number>;
    }
    ```
 
@@ -216,7 +216,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .item {
-   	flex: none | [ <'flex-grow'> <'flex-shrink'>? || <'flex-basis'> ]
+   	  flex: none | [ <'flex-grow'> <'flex-shrink'>? || <'flex-basis'> ]
    }
    ```
 
@@ -226,12 +226,12 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .item {
-   	flex: 1;
+   	  flex: 1;
    }
    .item {
-     flex-grow: 1;
-     flex-shrink: 1;
-     flex-basis: 0%;
+      flex-grow: 1;
+      flex-shrink: 1;
+      flex-basis: 0%;
    }
    ```
 
@@ -239,7 +239,7 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .item {
-     align-self: auto | flex-start | flex-end | center | baseline | stretch;
+      align-self: auto | flex-start | flex-end | center | baseline | stretch;
    }
    ```
 
@@ -255,14 +255,14 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .parent {
-     height: 150px;
-     line-height: 150px; /*行高的值与height相等*/
-     text-align: center;
-     font-size: 0; /*消除幽灵空白节点的bug*/
+      height: 150px;
+      line-height: 150px; /*行高的值与height相等*/
+      text-align: center;
+      font-size: 0; /*消除幽灵空白节点的bug*/
    }
    .son {
-     /*display: inline-block;*/  /*如果是块级元素需改为行内或行内块级才生效*/
-     vertical-align: middle;
+      /*display: inline-block;*/  /*如果是块级元素需改为行内或行内块级才生效*/
+      vertical-align: middle;
    }
    ```
 
@@ -277,16 +277,16 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .parent {
-     height: 150px;
-     width: 200px;
-     display: table-cell;
-     vertical: middle;
-     /*text-align: center;*/   /*如果是行内元素就添加这个*/
+      height: 150px;
+      width: 200px;
+      display: table-cell;
+      vertical: middle;
+      /*text-align: center;*/   /*如果是行内元素就添加这个*/
    }
    .son {
-     /*margin: 0 auto;*/    /*如果是块级元素就添加这个*/
-     width: 100px;
-     height: 50px;
+      /*margin: 0 auto;*/    /*如果是块级元素就添加这个*/
+      width: 100px;
+      height: 50px;
    }
    ```
 
@@ -301,14 +301,14 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .parent {
-     position: relative;
+      position: relative;
    }
    .son {
-     position: absolute;
-     top: 50%;
-     left: 50%;
-     /*定宽高时等同于margin-left:负自身宽度一半;margin-top:负自身高度一半;*/
-     transform: translate(-50%,-50%);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      /*定宽高时等同于margin-left:负自身宽度一半;margin-top:负自身高度一半;*/
+      transform: translate(-50%,-50%);
    }
    ```
 
@@ -323,17 +323,17 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .parent {
-     position: relative;
+      position: relative;
    }
    .son {
-     position: absolute;
-     margin: auto;
-     width: 100px;
-     height: 100px;
-     top: 0;
-     bottom: 0;
-     left: 0;
-     right: 0;
+      position: absolute;
+      margin: auto;
+      width: 100px;
+      height: 100px;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
    }
    ```
 
@@ -348,13 +348,13 @@ flex 布局有一个主轴和侧轴，flex 布局包括 flex container 和 flex 
 
    ```css
    .parent {
-     display: flex;
-     justify-content: center;
-     align-items: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
    }
    .son {
-     width: 100px;
-     height: 100px;
+      width: 100px;
+      height: 100px;
    }
    ```
 
