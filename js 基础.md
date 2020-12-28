@@ -281,3 +281,107 @@ this 没有作用域的限制，所以嵌套函数不会从调用它的函数中
 
 - 把 this 保存为一个 self 变量，再利用变量的作用域链机制传递给嵌套函数，把 this 的体系变为作用域的体系
 - 把嵌套函数变成箭头函数，因为箭头函数没有自己 this，所以它会继承嵌套函数的 this
+
+---
+
+### 原型
+
+#### 构造函数
+
+用 new 调用的函数就叫做构造函数，new 做了什么？
+
+- 先创建一个新的对象
+- 把这个对象的原型指向构造函数的 prototype
+- 把构造函数的 this 指向新创建的对象
+- 如果函数有返回值则返回对应的值，没有返回值则返回新创建的对象
+
+```js
+function Person() {
+  
+}
+var person = new Person()
+person.name = 'zzl'
+console.log(person.name) // zzl
+```
+
+在这个例子，Person 是一个构造函数，用 new 创建了一个实例对象 person
+
+#### prototype
+
+每个函数都有一个 prototype 属性
+
+```js
+function Person() {
+
+}
+Person.prototype.name = 'zzl'
+var person1 = new Person()
+var person1 = new Person()
+console.log(person1.name) // zzl
+console.log(person2.name) // zzl
+```
+
+函数的 prototype 的属性指向一个对象，这个对象就是调用该构造函数而创建的实例的原型，也就是 person1 和 person2 的原型，每一个 js 对象（除了 null ）在创建的时候都会与之关联另一个对象，这个对象也就是原型，每一个对象都会从原型上“继承”属性
+
+![image](https://github.com/mqyqingfeng/Blog/raw/master/Images/prototype1.png)
+
+#### \__proto__
+
+每一个 js 对象（除了 null ）都具有的一个属性，这个属性会指向该对象的原型，绝大数浏览器都支持这个非标准的方法访问原型，然后它并不存在 Person.prototype 中，实际上，它是来自 Object.prototype，它实际上是一个 getter/setter，当使用 obj.\__proto__。可以理解返回了 Object.getPrototypeOf(obj)
+
+```js
+function Peron() {
+  
+}
+var person = new Person()
+console.log(person.__proto__ === Person.prototype) // true
+```
+
+![image](https://github.com/mqyqingfeng/Blog/raw/master/Images/prototype2.png)
+
+\__proto__ 的实现
+
+```js
+Object.defineProperty(Object.prototype, "__proto__",  {
+  get: function() {
+    return Object.getPrototypeOf(this)
+  },
+  set: function(o) {
+		Object.setPrototypeOf(this, o)
+    return o
+  }
+})
+```
+
+#### constructor
+
+每一个原型都有一个 constructor 属性指向关联的构造函数
+
+```js
+function Person() {
+
+}
+console.log(Person.prototype.constructor === Person) // true
+var person = new Person()
+console.log(person.constructor === Person) // true
+```
+
+当获取 person.constructor 时，其实 person 中并没有 constructor 属性，当获取不到 constructor 属性时，就会沿着原型链向上找，也就是会去原型 Person.prototype 中去读取，正好原型上有这个属性，所以：
+
+```js
+person.constructor === Person.prototype.constructor
+```
+
+![image](https://github.com/mqyqingfeng/Blog/raw/master/Images/prototype3.png)
+
+#### 原型链
+
+当在一个对象查找一个属性时，如果在这个对象查找不到，就会沿着原型链上去查找，直到查找到 Object.prototype 为止
+
+![image](https://github.com/mqyqingfeng/Blog/raw/master/Images/prototype5.png)
+
+原型链也就是沿着 \__proto__ 查找的一个链条
+
+#### 原型“继承”
+
+每一个对象都会从原型“继承”属性这种说法其实不太正确，继承意味着复制操作，然而 js 默认不会复制对象的属性，js 只是在两个对象之间创建一个关联，这样，一个对象就可以通过委托访问另一个对象的属性和方法，所以与其叫继承，委托的说法更加准确
