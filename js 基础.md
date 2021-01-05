@@ -385,3 +385,147 @@ person.constructor === Person.prototype.constructor
 #### 原型“继承”
 
 每一个对象都会从原型“继承”属性这种说法其实不太正确，继承意味着复制操作，然而 js 默认不会复制对象的属性，js 只是在两个对象之间创建一个关联，这样，一个对象就可以通过委托访问另一个对象的属性和方法，所以与其叫继承，委托的说法更加准确
+
+---
+
+### 继承
+
+#### 原型链继承
+
+```js
+function Parent() {
+  this.name = 'kevin'
+}
+Parent.prototype.getName = function() {
+  console.log(this.name)
+}
+function Child() {
+  
+}
+Child.prototype = new Parent()
+const child1 = new Child()
+console.log(child1.getName()) // kevin
+```
+
+缺点：
+
+1. 引用类型的属性会被所有实例共享
+2. 在创建 Child 的实例时，不能向 Parent 传参
+
+例如：
+
+```js
+function Parent() {
+  this.names = ['kevin', 'daisy']
+}
+function Child () {
+  
+}
+Child.prototype = new Parent()
+const child1 = new Child()
+child1.names.push('zhangzelin')
+console.log(child1.names) // ['kevin', 'daisy', 'zhangzelin']
+const child2 = new Child()
+console.log(child2.names) // ['kevin', 'daisy', 'zhangzelin']
+```
+
+#### 构造函数继承
+
+```js
+function Parent() {
+  this.names = ['kevin', 'daisy']
+}
+function Child() {
+  Parent.call(this)
+}
+const child1 = new Child()
+child1.names.push('zhangzelin')
+console.log(child1.names) // ['kevin', 'daisy', 'zhangzelin']
+const child2 = new Child()
+console.log(child2.names) // ['kevin', 'daisy']
+```
+
+优点：
+
+1. 避免了引用类型属性被所有实例共享
+2. 可以在 Child 中向 Parent 中传参
+
+例如：
+
+```js
+function Parent(name) {
+  this.name = name
+}
+function Child(name) {
+  Parent.call(this, name)
+}
+const child1 = new Child('kevin')
+console.log(child1.name) // kevin
+const child2 = new Child('zhangzelin')
+console.log(child2.name) // zhangzelin
+```
+
+缺点：
+
+1. 方法都在构造函数中定义，每次创建实例都会创建一遍方法
+2. 不能继承父类原型上的属性和方法
+
+#### 组合继承
+
+原型链继承和构造函数继承的组合
+
+```js
+function Parent (name) {
+  this.name = name
+  this.colors = ['red', 'blue', 'green']
+}
+Parent.prototype.getName = function () {
+  console.log(this.name)
+}
+function Child(name, age) {
+  Parent.call(this, name)
+  this.age = age
+}
+Child.prototype = new Parent()
+Child.prototype.constructor = Child
+
+const child1 = new Child('kevin', 18)
+child1.colors.push('black')
+console.log(child1.name) // kevin
+console.log(child1.age) // 18
+console.log(child1.colors) // ['red', 'blue', 'green', 'black']
+
+const child2 = new Child('daisy', 20)
+console.log(child2.name) // daisy
+console.log(child2.age) // 20
+console.log(child2.colors) // ['red', 'blue', 'green']
+```
+
+优点：融合了原型链继承和构造函数继承的特点，是 js 中最常用的继承模式
+
+缺点：会调用两次父构造函数，一次是设置子类原型的时候，一次是实例化子类的时候
+
+#### 寄生组合继承
+
+```js
+function Parent (name) {
+  this.name = name
+  this.color = ['red', 'blue', 'green']
+}
+Parent.prototype.getName = function() {
+  console.log(this.name)
+}
+function Child(name, age) {
+  Parent.call(this, name)
+  this.age = age
+}
+// 关键一步，让子类的原型能直接访问父类的圆心
+Child.prototype = Object.create(Parent.prototype)
+Child.prototype.constructor = Child
+
+const child1 = new Child('kevin', 18)
+console.log(child1)
+```
+
+优点：只调用了一次父构造函数，因此避免了在 Child.prototype 上创建不必要的、多余的属性，原型链还能保持不变，能够正常的使用 instanceof 和 isPrototypeOf
+
