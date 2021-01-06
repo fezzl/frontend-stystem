@@ -529,3 +529,55 @@ console.log(child1)
 
 优点：只调用了一次父构造函数，因此避免了在 Child.prototype 上创建不必要的、多余的属性，原型链还能保持不变，能够正常的使用 instanceof 和 isPrototypeOf
 
+---
+
+### 深拷贝与浅拷贝
+
+#### 深拷贝与浅拷贝的区别
+
+1. 层次
+   - 浅拷贝只会将对象的各个属性进行复制，并不会递归的复制，也就是只复制对象的第一层属性
+   - 深拷贝不只拷贝对象的第一层属性，而会递归的拷贝对象的所有属性
+2. 是否开辟新的栈
+   - 浅拷贝对于目标对象的第一层为基本数据类型的数据，就是直接赋值，即传值；而对于目标对象第一层为引用类型的数据，就是直接赋值存于栈内存中的堆内存地址，即传址，并没有开辟新的栈，也就是复制的结果是两个对象指向同一个地址，修改一个对象的属性，另一个对象的属性也会改变
+   - 深拷贝是开辟新的栈，两个对象对应两个不同的地址，修改一个对象的属性，不会改变另一个对象的属性
+
+#### 浅拷贝
+
+数组 `concat`、`slice` ，对象`Object.assgin()`都是浅拷贝，浅拷贝的实现
+
+```js
+function shallowCopy(obj) {
+  // 只拷贝对象
+  if (typeof obj !== 'object') return
+  // 根据 obj 的类型创建一个数组或者对象
+  const newObj = obj instanceof Array ? [] : {}
+  // 遍历 obj 拷贝 obj 的属性
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      newObj[key] = obj[key]
+    }
+  }
+  return newObj
+}
+```
+
+#### 深拷贝
+
+`JSON.parse(JSON.stringify(obj))` 可以实现深拷贝，但是不能拷贝函数、正则、undefined、symbol，因为 `JSON.stringify()` 在对象遇到 undefined 、function 和 symbol 会自动忽略，在数组中返回 null
+
+递归实现深拷贝
+
+```js
+function deepCopy (obj) {
+  if (typeof obj !== 'object') return
+  const newObj = obj instanceof Array ? [] : {}
+  for(let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      newObj[key] = typeof obj[key] === 'object' ? deepCopy(obj[key]) : obj[key]
+    }
+  }
+  return newObj
+}
+```
+
