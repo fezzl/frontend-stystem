@@ -549,7 +549,7 @@ console.log(child1)
 ```js
 function shallowCopy(obj) {
   // 只拷贝对象
-  if (typeof obj !== 'object') return
+  if (typeof obj !== 'object') return obj
   // 根据 obj 的类型创建一个数组或者对象
   const newObj = obj instanceof Array ? [] : {}
   // 遍历 obj 拷贝 obj 的属性
@@ -570,7 +570,7 @@ function shallowCopy(obj) {
 
 ```js
 function deepCopy (obj) {
-  if (typeof obj !== 'object') return
+  if (typeof obj !== 'object') return obj
   const newObj = obj instanceof Array ? [] : {}
   for(let key in obj) {
     if (obj.hasOwnProperty(key)) {
@@ -580,4 +580,56 @@ function deepCopy (obj) {
   return newObj
 }
 ```
+
+缺点：
+
+1. 递归爆栈，可以用循环解决
+2. 无法解决循环引用问题，可以创建一个记忆的数组，如果已经拷贝过的对象就直接从数组中取出来
+
+---
+
+### Event loop
+
+#### 消息队列和事件循环
+
+![image](https://static001.geekbang.org/resource/image/e2/c6/e2582e980632fd2df5043f81a11461c6.png)
+
+- 事件循环：在线程执行中接收并处理新的任务，本质上是 for 循环
+
+- 消息队列：接收其他线程发送过来的任务
+
+#### 页面使用单线程的缺点
+
+- 如何处理高优先级的任务，例如监听 DOM 的变化
+  - 使用微任务，消息队列的任务称为宏任务，每个宏任务都包含一个微任务队列，当宏任务执行完之后，渲染引擎并不着急去执行下一个宏任务，而是执行当前宏任务中微任务队列中的所有微任务
+- 如何解决单个任务执行时长过久的问题
+  - 通过回调功能来规避这种问题，也就是让要执行的 js 任务滞后执行
+
+#### setTimeout
+
+1. 延迟队列：浏览器中有一个延迟队列，setTimeout 会被添加进延迟队列中，当指定的延迟时间到了之后会定时器的回调会被添加到消息队列中执行，如果正在执行一个非常耗时的任务，会导致延迟执行的时间大于指定延迟的时间
+2. 存在嵌套调用 setTimeout 的时候，系统会设置最小延迟时间 4ms ( 超过5层 )
+3. 未激活的页面，setTimeout 最小间隔为 1000 ms
+4. 延时执行时间的最大值2147483647（24.8天），溢出会导致定时器立即执行
+5. setTimeout 设置回调函数 this 会是回调时候对应的 this 对象，可以使用箭头函数解决
+
+#### 宏任务和微任务
+
+宏任务：
+
+- 渲染事件（解析 DOM，计算布局、绘制等）
+- 用户的交互事件（鼠标点击、滚动、放大缩小）
+- js 脚本执行
+- 网络请求、文件读写
+
+微任务：
+
+- MutationObserve 监控 DOM 节点的变化
+- Promise.resolve() 和 Promose.reject()
+
+每一个宏任务都有一个微任务队列，当一个宏任务快执行完成，js 引擎就会去检查这个宏任务中的微任务队列是否有微任务，如果有则按顺序执行微任务，在执行微任务的时候如果产生了微任务的话，就会继续放在微任务队列里执行，直到微任务队列为空，才会去执行下一个宏任务，js 执行微任务的时机叫做检查点（checkpoint）, 有多个 checkpoint
+
+![image](https://static001.geekbang.org/resource/image/83/88/839f468be3d683019c309e0acd8cd788.png)
+
+![image](https://static001.geekbang.org/resource/image/1d/92/1db319c879610816c0cfea22723fc492.png)
 
