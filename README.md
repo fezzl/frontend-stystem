@@ -18,7 +18,7 @@
 
 - js笔试题
 
-- es6
+- [es6](https://github.com/coderzelin/frontend-stystem/blob/master/es6.md)
 
 - react
 
