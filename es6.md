@@ -218,4 +218,74 @@ map.get('title') // "Author"
 
 WeakMap 只接收对象作为键名吗，不接受其他类型的值作为键名，WeakMap 的键名指向的对象不计入垃圾回收机制
 
- 
+### Proxy
+
+Proxy 代理用于修改某些操作的默认行为，等于在语言层面做出修改，所以属于一种“元编程”，即对编程语言进行编程，可以理解为在目标对象之前架设一层“拦截”，外界对该对象进行访问，都必须通过这层拦截，因此可以对外界的访问进行过滤和改写。
+
+``` js
+var obj = new Proxy({}, {
+  get: function (target, propKey, receiver) {
+    console.log(`getting ${propKey}!`);
+    return Reflect.get(target, propKey, receiver);
+  },
+  set: function (target, propKey, value, receiver) {
+    console.log(`setting ${propKey}!`);
+    return Reflect.set(target, propKey, value, receiver);
+  }
+});
+```
+
+上面代码对一个空对象架设了一层拦截，重定义了属性的读取（get）和设置（set）行为
+
+Proxy 对象的用法
+
+```js
+var proxy = new Proxy(target, handler);
+```
+
+`new Proxy()` 表示生成一个 `Proxy` 实例，`target` 参数表示要拦截的目标对象，`handler` 参数也是一个对象，用来定制拦截行为
+
+### Reflect
+
+`Reflect` 对象和 `Proxy` 对象一样，也是 es6 为了操作对象提供的新 API，Reflect 对象的设计目的有几个
+
+1. 将`Object` 对象的一些属于语言内部的方法（`Object.defineProperty`），放到`Reflect`对象上
+2. 修改某些 `Object`方法返回的结果，让其变的更加合理，比如`Object.defineProperty(obj, name, desc)`在无法定义属性时，会抛出一个错误，而`Reflect.defineProperty(obj, name, desc)`则会返回false
+3. 让`Object`操作都变成函数行为。某些`Object`操作是命令式，比如`name in obj` 和 `delete obj[name]`，而`Reflect.has(obj, name)` 和 `Reflect.deleteProperty(obj, name)` 让他们变成函数行为
+4. `Reflect`对象的方法和`Proxy`对象的方法一一对应，只要是`Proxy`对象的方法就能在`Reflect`对象上找到对应的方法
+
+### Proxy 实现观察者模式
+
+观察者模式指的是函数自动观察数据对象，一旦对象有变化，就会自动执行观察者函数
+
+```js
+const person = observable({
+  name: '张三',
+  age: 20
+});
+
+function print() {
+  console.log(`${person.name}, ${person.age}`)
+}
+
+observe(print);
+person.name = '李四';
+// 输出
+// 李四, 20
+```
+
+数据对象 person 是观察目标，函数 print 是观察者，一旦数据变化就会执行 print 函数
+
+```js
+const queuedObservers = new Set()
+
+const observe = fn => queuedObervers.add(fn)
+const observable = obj => new Proxy(obj, {set})
+
+function set(target, key, value, receiver) {
+  const result = Reflect.set(target, key, value, receiver)
+  queuedObservers.forEach(observer => observer())
+  return result
+}
+```
+
