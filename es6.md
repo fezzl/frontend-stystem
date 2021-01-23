@@ -74,6 +74,8 @@ foo.prop // 123
 foo = {}; // TypeError: "foo" is read-only
 ```
 
+---
+
 ### 箭头函数
 
 1. 函数体内的 `this` 对象，就是定义时的所在的对象，而不是使用时的所在的对象
@@ -100,6 +102,8 @@ function foo() {
 }
 ```
 
+---
+
 ### 对象属性
 
 ES6 一共有5中方法可以遍历对象的属性
@@ -115,6 +119,8 @@ ES6 一共有5中方法可以遍历对象的属性
 - 首先遍历所有的数值键，按照数值升序排列
 - 其次遍历所有字符串键，按照加入时间升序排列
 - 最后遍历所有的 Symbol 键，按照加入时间升序排序
+
+---
 
 ### Symbol
 
@@ -139,6 +145,8 @@ s2 // Symbol(bar)
 s1.toString() // "Symbol(foo)"
 s2.toString() // "Symbol(bar)"
 ```
+
+---
 
 ### Set & Map
 
@@ -218,6 +226,8 @@ map.get('title') // "Author"
 
 WeakMap 只接收对象作为键名吗，不接受其他类型的值作为键名，WeakMap 的键名指向的对象不计入垃圾回收机制
 
+---
+
 ### Proxy
 
 Proxy 代理用于修改某些操作的默认行为，等于在语言层面做出修改，所以属于一种“元编程”，即对编程语言进行编程，可以理解为在目标对象之前架设一层“拦截”，外界对该对象进行访问，都必须通过这层拦截，因此可以对外界的访问进行过滤和改写。
@@ -244,6 +254,8 @@ var proxy = new Proxy(target, handler);
 ```
 
 `new Proxy()` 表示生成一个 `Proxy` 实例，`target` 参数表示要拦截的目标对象，`handler` 参数也是一个对象，用来定制拦截行为
+
+---
 
 ### Reflect
 
@@ -287,5 +299,324 @@ function set(target, key, value, receiver) {
   queuedObservers.forEach(observer => observer())
   return result
 }
+```
+
+---
+
+### Promise
+
+#### Promise 的含义
+
+Promise 是异步编程的一种解决方案，简单来说就是一个容器，里面保存着某个未来才会结束的事件（通常是一个异步操作）的结果，Promise 对象有两个特点
+
+1. 对象的状态不受外界影响。有三种状态：`pending`进行中、`fulfilled`已成功、`rejected`已失败。只有异步操作的结果能决定当前的状态、任何其他的操作都无法改变这个状态
+2. 一旦状态改变，就不会再变，Promise 对象的状态改变，只有两种可能：从`pending`变为`fulfilled`和从`pending`变为`rejected`
+
+#### Promise 用法
+
+Promise 对象是一个构造函数，用来生成 Promise 实例
+
+```js
+const promise = new Promise(function(resolve, reject) {
+  // ... some code
+
+  if (/* 异步操作成功 */){
+    resolve(value);
+  } else {
+    reject(error);
+  }
+});
+
+promise.then(function(value) {
+  // success
+}, function(error) {
+  // failure
+});
+```
+
+如果在一个 Promise 中返回另一个 Promise 则状态由返回的 Promise 决定
+
+```js
+const p1 = new Promise(function (resolve, reject) {
+  setTimeout(() => reject(new Error('fail')), 3000)
+})
+
+const p2 = new Promise(function (resolve, reject) {
+  setTimeout(() => resolve(p1), 1000)
+})
+
+p2
+  .then(result => console.log(result))
+  .catch(error => console.log(error))
+// Error: fail
+```
+
+#### Promise.prototype.then()
+
+它的作用是为 Promise 实例添加状态改变时的回调函数。then 方法的第一个参数是 resolved 状态的回调函数，第二个参数是 rejected 状态的回调函数，都是可选的。then 方法返回一个新的 promise 实例，因此可以采用链式写法
+
+```js
+getJSON("/posts.json").then(function(json) {
+  return json.post;
+}).then(function(post) {
+  // ...
+});
+```
+
+#### Promise.prototype.catch()
+
+用于指定发生错误时的回调函数
+
+```js
+getJSON('/posts.json').then(function(posts) {
+  // ...
+}).catch(function(error) {
+  // 处理 getJSON 和 前一个回调函数运行时发生的错误
+  console.log('发生错误！', error);
+});
+```
+
+reject() 方法的作用，等同于抛出错误，如果 Promise 状态已经变成 resolved，再抛出错误是无效的，Promise 对象的错误具有冒泡性质，会一直向后传递，直到被捕获为止，也就是说，错误总是会被下一个 catch 语句捕获，通过 throw 实现错误冒泡
+
+```js
+getJSON('/post/1.json').then(function(post) {
+  return getJSON(post.commentURL);
+}).then(function(comments) {
+  // some code
+}).catch(function(error) {
+  // 处理前面三个Promise产生的错误
+});
+```
+
+#### Promise.prototype.finally
+
+finally 方法用于指定不管 Promise 对象最后状态如何，都会执行的操作
+
+```js
+promise
+.then(result => {···})
+.catch(error => {···})
+.finally(() => {···});
+```
+
+finally 方法的实现
+
+```js
+Promise.prototype.finally = function (callback) {
+  let P = this.constructor;
+  return this.then(
+    value  => P.resolve(callback()).then(() => value),
+    reason => P.resolve(callback()).then(() => { throw reason })
+  );
+};
+```
+
+#### Promise.all
+
+Promise 方法用于将多个 Promise 实例，包装成一个新的 Promise 实例
+
+```js
+const p = Promise.all([p1, p2, p3])
+```
+
+Promise.all 方法接受一个数组作为参数，p1，p2，p3 都是 Promise 实例，如果不是，就会先调用 Promise.resolve 方法，将参数转为 Promise 实例，Promise.all 方法的参数可以不是数组，但必须具有 Iterator 接口，且返回的每个成员都是 Promise 实例
+
+p 的状态由 p1，p2，p3 决定
+
+1. 只有 p1，p2，p3 的状态都变成 fulfilled，p的状态才会变成 fulfilled，此时 p1，p2，p3 的返回值组成一个数组，传递给 p 的回调函数
+2. 只要 p1，p2，p3 之中有一个被 rejected ，p 的状态就变成 rejected，此时第一个被 reject 的实例的返回值，会传递给 p 的回调函数
+
+```js
+// 生成一个Promise对象的数组
+const promises = [2, 3, 5, 7, 11, 13].map(function (id) {
+  return getJSON('/post/' + id + ".json");
+});
+
+Promise.all(promises).then(function (posts) {
+  // ...
+}).catch(function(reason){
+  // ...
+});
+```
+
+如果作为参数的 Promise 的实例，自己定义了 catch 方法，那么它一旦被 rejected，并不会触发 Promise.all() 的 catch 方法
+
+```js
+const p1 = new Promise((resolve, reject) => {
+  resolve('hello');
+})
+.then(result => result)
+.catch(e => e);
+
+const p2 = new Promise((resolve, reject) => {
+  throw new Error('报错了');
+})
+.then(result => result)
+.catch(e => e);
+
+Promise.all([p1, p2])
+.then(result => console.log(result))
+.catch(e => console.log(e));
+// ["hello", Error: 报错了]
+
+```
+
+上面代码中，p1 会 resolved，p2 首先会 rejected，但是 p2 有自己的 catch 方法，该方法一个新的 Promise 的实例，p2 实际就是这个新的实例，该实例执行完 catch 方法后，也会变成 resolved，导致 Promise.all() 方法参数两个实例都是 resolved，因此会调用 then 方法指定的回调函数，而不会调用 catch 方法指定的回调函数
+
+#### Promise.race
+
+Promise.race() 方法是将多个 Promise 的实例，包装成一个新的 Promise 实例
+
+```js
+const p = Promise.race([p1, p2, p3])
+```
+
+只要 p1，p2，p3 之中有一个实例先改变状态，p 的状态就跟着改变，那个先改变的 Promise 实例的返回值，就传递给 p 的回调函数，如果 Promise.race 的参数不是 Promise 实例，就会调用 Promise.resolve() 方法，将参数转为 Promise 实例
+
+```js
+const p = Promise.race([
+  fetch('/resource-that-may-take-a-while'),
+  new Promise(function (resolve, reject) {
+    setTimeout(() => reject(new Error('request timeout')), 5000)
+  })
+]);
+
+p
+.then(console.log)
+.catch(console.error);
+```
+
+#### Promise.allSettled
+
+Promise.allSettled 方法接受一组 Promise 实例作为参数，包装成一个新的 Promise 实例。只有等到所有参数的实例都返回结果，不管是 fulfilled 还是 rejected，包装实例才会结束
+
+```js
+const promises = [
+  fetch('/api-1'),
+  fetch('/api-2'),
+  fetch('/api-3'),
+];
+
+await Promise.allSettled(promises);
+removeLoadingIndicator();
+```
+
+#### Promise.any
+
+该方法接受一组 Promise 实例作为参数，包装成一个新的 Promise 实例返回，只要参数实例有一个变成 fulfilled 状态，包装实例就会变成 fulfilled 状态; 如果所有参数的实例都变成 rejected 状态，包装实例就会变成 rejected 状态
+
+```js
+const promises = [
+  fetch('/endpoint-a').then(() => 'a'),
+  fetch('/endpoint-b').then(() => 'b'),
+  fetch('/endpoint-c').then(() => 'c'),
+];
+try {
+  const first = await Promise.any(promises);
+  console.log(first);
+} catch (error) {
+  console.log(error);
+}
+```
+
+#### Promise.resolve
+
+需要将现有对象转为 Promise 对象，Promise.resolve 方法就起到这个作用，Promise.resolve() 等价于下面的写法
+
+```js
+Promise.resolve('foo')
+// 等价于
+new Promise(resolve => resolve('foo'))
+```
+
+Promise.resolve() 方法的参数分成四种情况
+
+1. 参数是一个Promise 实例
+
+   如果参数是 Promise 实例，那么 Promise.resolve 将不做任何修改、原封不动地返回这个实例
+
+2. 参数是一个 thenable 对象
+
+   thenable 对象指的是具有 then 方法的对象，比如下面这个对象
+
+   ```js
+   let thenable = {
+     then: function (resolve, reject) {
+       resolve(42)
+     }
+   }
+   ```
+
+   Promise.resolve 方法会将这个对象转为 Promise 对象，然后立即执行 thenable 对象的 then 方法
+
+   ```js
+   let thenable = {
+     then: function(resolve, reject) {
+       resolve(42);
+     }
+   };
+   
+   let p1 = Promise.resolve(thenable);
+   p1.then(function (value) {
+     console.log(value);  // 42
+   });
+   ```
+
+3. 参数不是具有 then 方法的对象，或根本就不是对象
+
+   如果参数是一个原始值，或者一个不具有 then 方法的对象，则 Promise.resolve 方法返回一个新的 Promise 对象，状态为 resolved
+
+   ```js
+   const p = Promise.resolve('Hello')
+   
+   p.then(function (value) {
+     console.log(value)
+   })
+   // Hello
+   ```
+
+4. 不带有任何参数
+
+   Promise.resolve 方法允许调用时不带参数，直接返回一个 resolved 状态的 Promise 对象
+
+   ```js
+   const p = Promise.resolve()
+   
+   p.then(function() {
+     
+   })
+   ```
+
+Promise.resolve 是微任务，所以是在本轮事件循环结束时执行
+
+```js
+setTimeout(function () {
+  console.log('three');
+}, 0);
+
+Promise.resolve().then(function () {
+  console.log('two');
+});
+
+console.log('one');
+
+// one
+// two
+// three
+```
+
+#### Promise.reject
+
+Promise.reject(reason) 方法也会返回一个新的 Promise 实例，该实例状态为 rejected
+
+```js
+const p = Promise.reject('出错了')
+// 等同于
+const p = new Promise((resolve, reject) => reject('出错了'))
+
+p.then(null, function (s) {
+  console.log(s)
+})
+// 出错了
 ```
 
