@@ -620,3 +620,286 @@ p.then(null, function (s) {
 // 出错了
 ```
 
+---
+
+### Iterator & for...of 循环
+
+#### Iterator (遍历器)概念
+
+遍历器（Iterator）是一种接口，为各种不同的数据结构提供统一的访问机制。任何数据结构只要部署了 Iterator 接口，就可以完成遍历操作
+
+Iterator 的作用有三个：一是为各种数据结构提供一个统一的、简便的访问接口；二是使得数据结构的成员能够按某种次序排序；三是 ES6 创造了一种新的遍历命令 for...of 循环，Iterator 接口主要供 for...of 消费
+
+Iterator 的遍历过程是这样的
+
+1. 创建一个指针对象，指向当前数据结构的起始位置，也就是遍历器对象本质上，就是一个指针对象
+2. 第一次调用指针对象的 next 方法，可以将指针对象指向数据结构的第一个成员
+3. 第二次调用指针对象的 next 方法，可以将指针对象指向数据结构的第二个成员
+4. 不断调用指针对象的 next 方法，直到它指向数据结构的结束位置
+
+ 每一次调用 next 方法，都会返回数据结构的当前的成员信息，具体来说，就是返回一个包含 value 和 done 两个属性的对象，value 属性是当前成员的值，done 属性是一个布尔值，表示遍历是否结束
+
+```js
+var it = makeIterator(['a', 'b']);
+
+it.next() // { value: "a", done: false }
+it.next() // { value: "b", done: false }
+it.next() // { value: undefined, done: true }
+
+function makeIterator(array) {
+  var nextIndex = 0;
+  return {
+    next: function() {
+      return nextIndex < array.length ?
+        {value: array[nextIndex++], done: false} :
+        {value: undefined, done: true};
+    }
+  };
+}
+```
+
+#### 默认 Iterator 接口
+
+原生具备 Iterator 接口的数据结构如下
+
+- Array
+- Map
+- Set
+- String
+- TypedArray
+- 函数的 arguments 对象
+- NodeList 对象
+
+#### 调用 Iterator 接口的场合
+
+1. 解构赋值
+
+   对数组和 set 解构进行解构赋值时，会默认调用 Symbol.iterator
+
+   ```js
+   let set = new Set().add('a').add('b').add('c');
+   
+   let [x,y] = set;
+   // x='a'; y='b'
+   
+   let [first, ...rest] = set;
+   // first='a'; rest=['b','c'];
+   ```
+
+2. 扩展运算符
+
+   只要某个数据结构部署了 Iterator 接口，就可以对它使用扩展运算符，将其转为数组
+
+   ```js
+   let arr = [...iterable]
+   ```
+
+3. yield*
+
+   yield* 后面跟的是一个可遍历的结构，它会调用该结构的遍历器接口
+
+   ```js
+   let generator = function* () {
+     yield 1;
+     yield* [2,3,4];
+     yield 5;
+   };
+   
+   var iterator = generator();
+   
+   iterator.next() // { value: 1, done: false }
+   iterator.next() // { value: 2, done: false }
+   iterator.next() // { value: 3, done: false }
+   iterator.next() // { value: 4, done: false }
+   iterator.next() // { value: 5, done: false }
+   iterator.next() // { value: undefined, done: true }
+   ```
+
+4. 其他场合
+
+   由于数组的遍历会调用遍历器接口，所以任何接受数组作为参数的场合，其实都调用了遍历器接口
+
+   - for...of
+   - Array.from()
+   - Map(), Set(), WeakMap(), WeakSet()（比如`new Map([['a',1],['b',2]])`）
+   - Promise.all()
+   - Promise.race()
+
+#### for...of
+
+一个数据结构只要部署了 Symbol.iterator 属性，就被视为具有 iterator 接口，就可以用 for...of 循环遍历它的成员，也就是说，for...of 循环内部调用的是数据结构的 Symbol.iterator 方法
+
+for...of 循环可以使用的范围包括数组、Set 和 Map 结构、某些类似数组对象（arguments 对象、DOM NodeList 对象）、Generator 对象、字符串
+
+for...in 的缺点：
+
+- 数组的键名是数字，但是 for...in 循环是以字符串作为键名
+- for..in 会遍历原型上的属性
+- for..in 不会按顺序遍历键名
+
+---
+
+### Generator 函数
+
+#### 基本概念
+
+Generator 函数是一个状态机，封装了多个内部状态，执行后会返回一个遍历器对象，也就是说 Generator 函数除了状态机，还是一个遍历器对象生成函数。返回的遍历器对象，可以一次遍历 Generator 函数内部的每一个状态
+
+两个特征：
+
+- function 关键字与函数名之前有一个星号
+- 函数体内部使用 yield 表达式，定义内部不同的状态
+
+```js
+function* helloWorldGenerator() {
+  yield 'hello';
+  yield 'world';
+  return 'ending';
+}
+
+var hw = helloWorldGenerator();
+
+hw.next()
+// { value: 'hello', done: false }
+
+hw.next()
+// { value: 'world', done: false }
+
+hw.next()
+// { value: 'ending', done: true }
+
+hw.next()
+// { value: undefined, done: true }
+```
+
+#### Generator 与协程
+
+协程是一种程序的运行方式，可以理解成“协作的线程”或“协作的函数”，可以并行执行、交换执行权的线程（函数）就称为协程，协程是同时存在多个栈，但只有一个栈是在运行状态，也就是说协程是以多占用内存为代价，实现多任务的并行
+
+Generator 函数通过 yield 表达式交换控制权
+
+---
+
+### async 函数
+
+#### 含义
+
+async 函数是 Generator 函数的语法糖，将 Generator 函数的星号* 替换成 async，将 yield 替换成 await，async 的改进
+
+1. 内置执行器
+
+   async 函数的执行，与普通函数一模一样
+
+2. 更好的语义
+
+   async 和 await，比起星号和 yield，语义更加清楚。async 表示函数有异步操作，await 表示紧跟在后面的表达式需要等待结果
+
+3. 更广的适用性
+
+   async 函数的 await 命令后面可以是 Promise 对象和原始类型的值（数值、字符串和布尔值，但这时会自动转成立即 resolved 的 Promise 对象）
+
+4. 返回值是 Promise
+
+   async 函数的返回值是 Promise 对象
+
+#### async 函数的实现原理
+
+async 函数的实现原理，就是 Generator 函数和自动执行器包装在一个函数里
+
+```js
+async function fn(args) {
+  // ...
+}
+
+// 等同于
+
+function fn(args) {
+  return spawn(function* () {
+    // ...
+  });
+}
+```
+
+---
+
+### Class
+
+#### 概念
+
+Class 是构造函数的语法糖
+
+```js
+function Point(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
+Point.prototype.toString = function () {
+  return '(' + this.x + ', ' + this.y + ')';
+};
+
+var p = new Point(1, 2);
+// 等同于
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  toString() {
+    return '(' + this.x + ', ' + this.y + ')';
+  }
+}
+```
+
+#### 静态方法
+
+类相当于实例的原型，所有在类中定义的方法都会被实例继承，如果在一个方法前面加上一个 static 关键字，就表示该方法不会被实继承，而是直接通过类来调用，这种就叫做静态方法
+
+```js
+class Foo {
+  static classMethod() {
+    return 'hello';
+  }
+}
+
+Foo.classMethod() // 'hello'
+
+var foo = new Foo();
+foo.classMethod()
+// TypeError: foo.classMethod is not a function
+```
+
+静态方法中的 this 指向类，而不是实例，静态方法可以被子类继承
+
+#### 实例属性的新写法
+
+实例属性除了定义在 constructor 方法里面的 this 上面，也可以定义在类的最顶层
+
+```js
+class IncreasingCounter {
+  _count = 0;
+  get value() {
+    console.log('Getting the current value!');
+    return this._count;
+  }
+  increment() {
+    this._count++;
+  }
+}
+```
+
+#### 静态属性
+
+静态属性指的是 Class 本身的属性，即 Class.propName，而不是定义在实例对象（this）上的属性
+
+```js
+class MyClass {
+  static myStaticProp = 42;
+
+  constructor() {
+    console.log(MyClass.myStaticProp); // 42
+  }
+}
+```
+
