@@ -903,3 +903,110 @@ class MyClass {
 }
 ```
 
+#### 继承
+
+class 可以通过 extends 关键字实现继承
+
+```js
+class Point {
+}
+
+class ColorPoint extends Point {
+}
+// 父类的静态方法，也会被子类继承
+class A {
+  static hello() {
+    console.log('hello world');
+  }
+}
+
+class B extends A {
+}
+
+B.hello()  // hello world
+```
+
+#### super 关键字
+
+super 关键字，既可以当做函数使用，也可以当作对象使用
+
+super 作为函数调用时，代表父类的构造函数，子类的构造函数必须执行一次 super 函数
+
+```js
+class A {}
+
+class B extends A {
+  constructor() {
+    super();
+  }
+}
+// super() 相当于 A.prototype.constructor.call(this)
+class A {
+  constructor() {
+    console.log(new.target.name);
+  }
+}
+class B extends A {
+  constructor() {
+    super();
+  }
+}
+new A() // A
+new B() // B
+```
+
+ super 作为对象时，在普通方法中，指向父类的原型对象；在静态方法中，指向父类
+
+```js
+class A {
+  p() {
+    return 2;
+  }
+}
+
+class B extends A {
+  constructor() {
+    super();
+    console.log(super.p()); // 2
+  }
+}
+
+let b = new B();
+```
+
+#### 类的 prototype 属性和 \__proto__属性
+
+class 作为构造函数的语法糖，同时有 prototype 属性和 \__proto__ 属性
+
+1. 子类的 \__proto__ 属性，表示构造函数的继承，总是指向父类
+2. 子类 prototype 属性的 \__proto__ 属性，表示方法的继承，总是指向父类的 prototype 属性
+
+```js
+class A {
+}
+
+class B extends A {
+}
+
+B.__proto__ === A // true
+B.prototype.__proto__ === A.prototype // true
+```
+
+因为类的继承是按照下面的模式实现的
+
+```js
+class A {
+}
+
+class B {
+}
+
+// B 的实例继承 A 的实例
+Object.setPrototypeOf(B.prototype, A.prototype);
+
+// B 继承 A 的静态属性
+Object.setPrototypeOf(B, A);
+
+const b = new B();
+```
+
