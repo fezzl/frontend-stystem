@@ -1010,3 +1010,181 @@ Object.setPrototypeOf(B, A);
 const b = new B();
 ```
 
+---
+
+### ES Module
+
+#### 概念
+
+ES Module 是静态（编译时）加载，CommonJs 是运行时加载，ES Module 可以在编译时就完成模块加载，效率比 CommonJs 模块的加载方式高
+
+ES6 模块是编译时加载，使得静态分析成为可能。我们能进一步的拓宽 JavaScript 的语法，比如引入宏和类型检验这些只能靠静态分析实现的功能
+
+#### export
+
+模块的功能主要由两个命令构成的：export 和 import。export 命令用于规定模块的对外接口，import 命令用于输入其他模块提供的功能
+
+```js
+// profile.js
+export var firstName = 'Michael';
+export var lastName = 'Jackson';
+export var year = 1958;
+
+// profile.js
+var firstName = 'Michael';
+var lastName = 'Jackson';
+var year = 1958;
+
+export { firstName, lastName, year };
+```
+
+export 语句输出的接口，与其对应的值是动态绑定的关系，即通过该接口，可以取到模块内部实时的值
+
+#### import
+
+使用 export 命令定义了模块对外的接口以后，其他 js 文件就可以通过 import 命令加载这个模块
+
+```js
+// main.js
+import { firstName, lastName, year } from './profile.js';
+
+function setName(element) {
+  element.textContent = firstName + ' ' + lastName;
+}
+```
+
+import 输入的变量都是只读的，本质上是输入接口，不允许在加载模块的脚本里面改写接口
+
+```js
+import {a} from './xxx.js'
+
+a = {}; // Syntax Error : 'a' is read-only;
+
+// 如果 a 是一个对象
+import {a} from './xxx.js'
+
+a.foo = 'hello'; // 合法操作
+```
+
+#### export default
+
+export default 为模块的默认导出，一个模块中只有一个默认导出，其他模块加载该模块的时候，可以指定任意名字。本质上，export default 就是输出一个叫做 default 的变量和方法
+
+```js
+// modules.js
+function add(x, y) {
+  return x * y;
+}
+export {add as default};
+// 等同于
+// export default add;
+
+// app.js
+import { default as foo } from 'modules';
+// 等同于
+// import foo from 'modules';
+```
+
+因为 export default 其实是输出一个 default 变量，所以它后面不能跟变量声明语句
+
+```js
+// 正确
+export var a = 1;
+
+// 正确
+var a = 1;
+export default a;
+
+// 错误
+export default var a = 1;
+```
+
+上面代码中，export default a 的含义是将变量 a 赋值给 default 变量
+
+#### export 与 import 的复合写法
+
+如果在一个模块之中，先输入后输出同一个模块，import 和 export 语句可以写在一起
+
+```js
+export { foo, bar } from 'my_module';
+
+// 可以简单理解为
+import { foo, bar } from 'my_module';
+export { foo, bar };
+```
+
+写成一行后，foo 和 bar 实际上并没有被导入当前模块，只是相当于转发了这两个接口，导致当前模块不能直接使用 foo 和 bar
+
+默认接口的写法
+
+```js
+export { default } from 'foo';
+```
+
+具名接口改默认接口
+
+```js
+export { es6 as default } from './someModule';
+
+// 等同于
+import { es6 } from './someModule';
+export default es6;
+```
+
+默认接口改具名接口
+
+```js
+export { default as es6 } from './someModule';
+```
+
+#### import()
+
+import() 函数支持动态加载模块，返回一个 Promise 对象，import() 类似 Node 的 require 方法，区别是前者是异步加载，后者是同步加载
+
+```js
+const main = document.querySelector('main');
+
+import(`./section-modules/${someVariable}.js`)
+  .then(module => {
+    module.loadPageInto(main);
+  })
+  .catch(err => {
+    main.textContent = err.message;
+  });
+```
+
+使用 import() 的场景
+
+1. 按需加载，可以在需要的时候再加载某个模块
+
+   ```js
+   button.addEventListener('click', event => {
+     import('./dialogBox.js')
+     .then(dialogBox => {
+       dialogBox.open();
+     })
+     .catch(error => {
+       /* Error handling */
+     })
+   });
+   ```
+
+2. 条件加载，import() 可以放在 if 代码块，根据不同情况，加载不同的模块
+
+   ```js
+   if (condition) {
+     import('moduleA').then(...);
+   } else {
+     import('moduleB').then(...);
+   }
+   ```
+
+3. 动态路径
+
+   ```js
+   import(f())
+   .then(...);
+   ```
+
+import() 模块加载成功之后，这个模块会作为一个对象，当作 then 方法的参数，可以使用对象解构的语法，获取输出的接口
+
