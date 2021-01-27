@@ -1188,3 +1188,24 @@ import(`./section-modules/${someVariable}.js`)
 
 import() 模块加载成功之后，这个模块会作为一个对象，当作 then 方法的参数，可以使用对象解构的语法，获取输出的接口
 
+---
+
+### Module 的加载实现
+
+#### 浏览器加载
+
+`<script>`标签打开 defer 或 async 属性，脚本就会异步加载
+
+defer 和 async 区别：defer 要等到整个页面再内存中渲染结束，才会执行。async 一旦下载完之后，渲染引擎就会中断渲染，执行这个脚本。defer 是渲染完再执行，async 是下载完就执行，多个 defer 脚本会按顺序执行，多个 async 脚本不保证加载的顺序 
+
+浏览器加载 es6 模块，也使用 `<script>` 标签，但是要加入 type="module" 属性
+
+```
+<script type="module" src="./foo.js"></script>
+```
+
+#### ES6 模块 和 CommonJs 的差异
+
+- CommonJs 模块输出的值的拷贝（浅拷贝），es6 模块输出的是值的（只读的）引用
+- CommonJs 是运行时加载，es6 模块是编译时输出的接口
+- CommonJs 模块的 require() 是同步加载模块，并且会缓存加载的值，es6 模块的 import 命令是异步加载，有一个独立的模块依赖的解析阶段
