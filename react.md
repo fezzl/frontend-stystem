@@ -92,4 +92,50 @@ react 通过在浏览器每一帧时间中预留一些时间给 js 线程，reac
 
 > 这种将长任务拆分到每一帧中，被称为时间切片
 
+解决 CPU 瓶颈的关键是时间切片，而时间切片的关键是，将同步的更新变成可中断的异步更新
+
 #### io 瓶颈
+
+网络延迟是前端开发者无法解决的，所以如何在网络延迟的客观存在中，减少用户对网络延迟的感知，react 给出的答案是将人际交互的研究结果整合到真实的 UI 中
+
+---
+
+### react 15 架构
+
+react 15 架构可以分为两层：
+
+- Reconciler （协调器）—— 负责找出变化的组件
+- Renderer（渲染器）—— 负责将变化的组件渲染到页面上
+
+#### Reconciler （协调器）
+
+在 react 中可以通过 this.setState、this.forceUpdate、ReactDom.render 等 API 触发更新
+
+每当有更新发生时，Reconciler 会做如下工作：
+
+- 调用函数组件、class 组件的 render 方法，将返回的 jsx 转化为虚拟 DOM
+- 将虚拟 DOM 和上次更新时的虚拟 DOM 做对比 diff
+- 通过对比找出本次更新中变化的虚拟 DOM
+- 通知 Renderer 将变化的虚拟 DOM 渲染到页面上
+
+#### Renderer （渲染器）
+
+由于 React 支持跨平台，所以不同平台有不同的 renderer。负责在浏览器环境渲染的 Renderer —— ReactDom
+
+除此之外，还有：
+
+- ReactNative 渲染器，渲染 App 原生组件
+- ReactTest 渲染器，渲染出纯 JS 对象用于测试
+- ReactArt 渲染器，渲染到 Canvas，SVG 或 VML（IE8）
+
+在每次更新发生时，Renderer 接到 Reconciler 通知，将变化的组件渲染在当前的宿主环境
+
+#### react 15 架构的缺点
+
+在 Reconciler 中，mount 组件会调用 mountComponent，update 组件会调用 updateComponent，这两个方法都会递归的更新子组件
+
+递归更新的缺点：
+由于递归更新，所以更新一旦开始，中途就无法中断，当层级很深时，递归的时间超过 16ms，用户交互就会卡顿
+
+可以使用可中断的异步更新优化吗？
+因为 Reconciler 和 Renderer 是交替工作的，所以如果中断更新会导致页面只更新一部分，基于这个原因所以 react 决定重写整个架构
