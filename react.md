@@ -1,4 +1,4 @@
-### react key
+### React key
 
 React 通过比较子元素的 key 属性，判断该元素是新增，移动，删除，替换。从而优化 diff 的比较。key 要保证在相邻的子元素中唯一，如果使用 index 作为 key 会导致重新排序，新增子元素的时候出现问题
 
@@ -18,13 +18,13 @@ React 通过比较子元素的 key 属性，判断该元素是新增，移动，
 
 #### Hooks 解决的问题
 
-- 解决 react 复用逻辑的问题，以前复用逻辑使用的是 render props 和 hoc ，但这两种方式会让 react 组件嵌套的更深，导致看起来很臃肿，hooks 可以提取出复用的逻辑，这样可以更好的复用和测试，并且不用改变组件的嵌套结构
+- 解决 React 复用逻辑的问题，以前复用逻辑使用的是 render props 和 hoc ，但这两种方式会让 React 组件嵌套的更深，导致看起来很臃肿，hooks 可以提取出复用的逻辑，这样可以更好的复用和测试，并且不用改变组件的嵌套结构
 - 解决生命周期混乱的问题，class 组件中副作用会写在生命周期中，但是会把多种不同的逻辑写在同一个生命周期中，这样会造成结构不清晰，而且出现 bug 难以定位，hooks 可以把不同的逻辑写在不同的副作用钩子中。
 - 解决 class 组件的难以理解的 this 问题，在 class 组件需要处理事件处理函数的 this 指向问题，需要手动 bind this，或者使用箭头函数等方法去处理 this 指向的问题，这些很容易被忽略；hooks 使用函数组件的写法，所以可以不用处理复杂的 this 指向问题
 
 #### Hooks 的原理
 
-react 通过数组来处理 Hooks 的调用，所以 Hooks 要保证在每次调用组件渲染的时候调用的顺序一致，所以 Hooks 只能出现在 react 的最顶层，不能出现在条件判断，循环体，函数里面
+React 通过数组来处理 Hooks 的调用，所以 Hooks 要保证在每次调用组件渲染的时候调用的顺序一致，所以 Hooks 只能出现在 React 的最顶层，不能出现在条件判断，循环体，函数里面
 
 Hooks 的伪代码实现
 
@@ -68,7 +68,7 @@ event handing
 
 ![image](https://miro.medium.com/max/1260/1*3L8YJnn5eV5ev1FuN6rKSQ.png)
 
-### react 理念
+### React 理念
 
 > 我们认为，React 是用 JavaScript 构建快速响应的大型 Web 应用程序的首选方式。它在 Facebook 和 Instagram 上表现优秀。
 
@@ -79,16 +79,16 @@ event handing
 
 可以概括为：
 
-- cpu 的瓶颈
+- CPU 的瓶颈
 - IO 的瓶颈
 
-#### cpu 瓶颈
+#### CPU 瓶颈
 
 主流浏览器的刷新评率是 60HZ，即每(1000ms/60HZ) 16.6ms 浏览器刷新一次，应为 GUI 渲染线程和 js 线程都是运行在主线程上，所以 js 脚本和浏览器的渲染布局不能同时进行，如果当 js 的执行超过 16.6ms，这次刷新的时间就没有执行样式的布局和绘制
 
-react 通过在浏览器每一帧时间中预留一些时间给 js 线程，react 利用这个时间更新组件，初始预留时间是 5ms
+React 通过在浏览器每一帧时间中预留一些时间给 js 线程，React 利用这个时间更新组件，初始预留时间是 5ms
 
-当预留的时间不够用时，react 将线程控制权交给浏览器使其有时间渲染 UI，react 则等待下一帧时间到来继续执行中断的任务
+当预留的时间不够用时，React 将线程控制权交给浏览器使其有时间渲染 UI，React 则等待下一帧时间到来继续执行中断的任务
 
 > 这种将长任务拆分到每一帧中，被称为时间切片
 
@@ -96,20 +96,20 @@ react 通过在浏览器每一帧时间中预留一些时间给 js 线程，reac
 
 #### io 瓶颈
 
-网络延迟是前端开发者无法解决的，所以如何在网络延迟的客观存在中，减少用户对网络延迟的感知，react 给出的答案是将人际交互的研究结果整合到真实的 UI 中
+网络延迟是前端开发者无法解决的，所以如何在网络延迟的客观存在中，减少用户对网络延迟的感知，React 给出的答案是将人际交互的研究结果整合到真实的 UI 中
 
 ---
 
-### react 15 架构
+### React 15 架构
 
-react 15 架构可以分为两层：
+React 15 架构可以分为两层：
 
 - Reconciler （协调器）—— 负责找出变化的组件
 - Renderer（渲染器）—— 负责将变化的组件渲染到页面上
 
 #### Reconciler （协调器）
 
-在 react 中可以通过 this.setState、this.forceUpdate、ReactDom.render 等 API 触发更新
+在 React 中可以通过 this.setState、this.forceUpdate、ReactDom.render 等 API 触发更新
 
 每当有更新发生时，Reconciler 会做如下工作：
 
@@ -130,7 +130,7 @@ react 15 架构可以分为两层：
 
 在每次更新发生时，Renderer 接到 Reconciler 通知，将变化的组件渲染在当前的宿主环境
 
-#### react 15 架构的缺点
+#### React 15 架构的缺点
 
 在 Reconciler 中，mount 组件会调用 mountComponent，update 组件会调用 updateComponent，这两个方法都会递归的更新子组件
 
@@ -138,4 +138,71 @@ react 15 架构可以分为两层：
 由于递归更新，所以更新一旦开始，中途就无法中断，当层级很深时，递归的时间超过 16ms，用户交互就会卡顿
 
 可以使用可中断的异步更新优化吗？
-因为 Reconciler 和 Renderer 是交替工作的，所以如果中断更新会导致页面只更新一部分，基于这个原因所以 react 决定重写整个架构
+因为 Reconciler 和 Renderer 是交替工作的，所以如果中断更新会导致页面只更新一部分，基于这个原因所以 React 决定重写整个架构
+
+---
+
+### React 16 架构
+
+React 的架构可以分为三层：
+
+- Scheduler（调度器）—— 调度任务的优先级，高优先级的任务优先进去 Reconclier
+- Reconclier（协调器）—— 负责找出变化的组件
+- Renderer（渲染器）—— 负责将变化的组件渲染到页面上
+
+可以看到比 React 15 架构新增了 Scheduler 调度器
+
+#### Scheduler 调度器
+
+我们以浏览器是否有剩余的时间来当做任务中断的标准，需要一种机制，在浏览器中空闲时间去通知我们，其实部分浏览器已经实现了这个 API，这就是  requestIdleCallback，但是有以下的缺点，所以 React 放弃使用
+
+- 浏览器的兼容性问题
+- 触发评率不稳定，例如当 tab 切换的时候，之前的 tab 的 requestIdleCallback 的触发频率降低
+
+基于以上的原因，React 实现了更加完善的 requestIdleCallback 的 polyfill，这就是 Scheduler，除了在空闲的时间触发回调，Scheduler 还提供调度任务优先级的设置
+
+#### Reconclier 协调器
+
+React 15 的协调器是递归虚拟 DOM 找出变化的 DOM，所以不可中断，在 React 16 中，Reconciler 使用循环去遍历虚拟 DOM，每次循环都会用 shouldYield 判断当前是否有空余的时间
+
+```js
+/** @noinline */
+function workLoopConcurrent() {
+  // Perform work until Scheduler asks us to yield
+  while (workInProgress !== null && !shouldYield()) {
+    workInProgress = performUnitOfWork(workInProgress);
+  }
+}
+```
+
+React 16 如何解决中断更新时 DOM 更新不完整？
+
+在 React 16中，Reconclier 和 Renderer 不再是交替工作，当 Scheduler 把任务交给 Reconclier，会为虚拟 DOM 打上 增删改的标记
+
+```js
+export const Placement = /*             */ 0b0000000000010;
+export const Update = /*                */ 0b0000000000100;
+export const PlacementAndUpdate = /*    */ 0b0000000000110;
+export const Deletion = /*              */ 0b0000000001000;
+```
+
+整个 Scheduler 和 Reconclier 的工作都是在内存中完成，只有当所有组件都完成 Reconclier 的工作时，才会统一交给 Renderer 更新页面
+
+#### Renderer 渲染器
+
+Renderer 会根据 Reconclier 为虚拟 DOM 的标记，同步更新 DOM 的操作
+
+![image](https://react.iamkasong.com/img/process.png)
+
+其中红框中的任务可以因为下面的原因中断
+
+- 有更高的优先级的任务
+- 当前帧没有足够时间
+
+因为 Scheduler 和 Reconclier 的工作是在内存上完成的，所以即使中断多次，用户也是不会看到更新不完整的 DOM，这对用户是无感知的
+
+---
+
+### React Fiber
+
+React Fiber 是 React 内部的一个状态更新机制，支持任务的不同优先级，任务可以中断和恢复，并且恢复后可以复用之前的中间状态，每个任务更新的单元为 React Element 对应的 Fiber 节点
