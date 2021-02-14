@@ -206,3 +206,148 @@ Renderer 会根据 Reconclier 为虚拟 DOM 的标记，同步更新 DOM 的操�
 ### React Fiber
 
 React Fiber 是 React 内部的一个状态更新机制，支持任务的不同优先级，任务可以中断和恢复，并且恢复后可以复用之前的中间状态，每个任务更新的单元为 React Element 对应的 Fiber 节点
+
+#### Fiber 的含义
+
+- 作为架构来说，之前 React 15 的 Reconclier 是通过递归方式执行，数据保存在递归调用栈中，所以叫做 stack Reconclier，在 React 16 中，Reconclier 是通过 Fiber 节点实现的，所以叫做 Fiber Reconclier
+- 作为静态的数据结构来说，每个 Fiber 节点对应一个 React Element，包含组件的类型（类组件，函数组件，原生组件），对应的 DOM 节点信息等
+- 作为动态的数据结构来说，每个 Fiber 节点保存组件中在本次更新中的改变的状态，要更新的工作（增删改）
+
+#### Fiber 的结构
+
+作为架构来说，每个 Fiber 对应的 React Element，是如何连成树的
+
+```js
+this.return = null;
+// 指向子Fiber节点
+this.child = null;
+// 指向右边第一个兄弟Fiber节点
+this.sibling = null;
+```
+
+如下的组件：
+
+```js
+function App() {
+  return (
+    <div>
+      i am
+      <span>KaSong</span>
+    </div>
+  )
+}
+```
+
+对应的 Fiber 结构
+
+![image](https://react.iamkasong.com/img/fiber.png)
+
+作为静态数据结构，保存了组件的类型等
+
+```js
+// Fiber对应组件的类型 Function/Class/Host...
+this.tag = tag;
+// key属性
+this.key = key;
+// 大部分情况同type，某些情况不同，比如FunctionComponent使用React.memo包裹
+this.elementType = null;
+// 对于 FunctionComponent，指函数本身，对于ClassComponent，指class，对于HostComponent，指DOM节点tagName
+this.type = null;
+// Fiber对应的真实DOM节点
+this.stateNode = null;
+```
+
+作为动态的工作单元，Fiber 保存了本次更新的相关信息等
+
+```js
+// 保存本次更新造成的状态改变相关信息
+this.pendingProps = pendingProps;
+this.memoizedProps = null;
+this.updateQueue = null;
+this.memoizedState = null;
+this.dependencies = null;
+
+this.mode = mode;
+
+// 保存本次更新会造成的DOM操作
+this.effectTag = NoEffect;
+this.nextEffect = null;
+
+this.firstEffect = null;
+this.lastEffect = null;
+```
+
+下面两个字段和优先级有关
+
+```js
+// 调度优先级相关
+this.lanes = NoLanes;
+this.childLanes = NoLanes;
+```
+
+#### Fiber 工作原理
+
+Fiber 节点可以保存对应的 DOM 节点，所以 Fiber 树可以对应 DOM 树，Fiber 使用双缓存技术完成 Fiber 树（DOM 树）的更新，在内存中的构建与替换的技术叫做双缓存技术。
+
+#### 双缓存 Fiber 树
+
+在 React 有两个 Fiber 树，一个是显示在当前页面上内容对应的 current Fiber 树，一个是在内存中构建的 workInProgress Fiber 树，current Fiber 的 Fiber 节点和 workInProgress 的 Fiber 节点通过 alternate 属性连接
+
+```js
+currentFiber.alternate === workInProgressFiber;
+workInProgressFiber.alternate === currentFiber;
+```
+
+React 项目通过 current 指针在不同 Fiber 树的 rootFiber  中切换实现 Fiber 树的切换，当在 workInProgress 中构建完 Fiber 树并且交给 Renderer 去渲染页面时，应用的根节点就会把 current 指针指向 workInProgress Fiber 树，workInProgress Fiber 树就会变成 current Fiber 树。
+
+每次状态更新时就会在内存中构建 workInProgress Fiber 树，通过 current 指针完成 workInProgress 和 current Fiber 树的切换，完成 DOM 的更新
+
+#### 组件 mount 和 update 过程
+
+```js
+function App() {
+  const [num, add] = useState(0);
+  return (
+    <p onClick={() => add(num + 1)}>{num}</p>
+  )
+}
+
+ReactDOM.render(<App/>, document.getElementById('root'));
+```
+
+Mount 阶段
+
+1. 首次调用 ReactDOM.render 时会创建 fiberRoot 和 rootFiber。fiberRoot 是整个应用的入口根节点，rootFiber 因为可以调用多次，所以不止有一个，它代表组件的根节点，fiberRoot 的 current 会指向当前页面上的 Fiber 树，被称作 current Fiber 树。
+
+   ```js
+   fiberRootNode.current = rootFiber;
+   ```
+
+   因为首屏渲染，所以还没有 DOM 挂载，所以 rootFiber 没有任何的子 Fiber 节点
+
+   ![image](https://react.iamkasong.com/img/rootfiber.png)
+
+2. 接下来就是调用组件的 render 方法，返回的 jsx 会在内存中构建 workInProgress Fiber 树，并且 workInProgress Fiber 节点通过 alternate 复用 rootFiber 的 Fiber 节点
+
+   ![image](https://react.iamkasong.com/img/workInProgressFiber.png)
+
+3. 最后把 workInProgress Fiber 树在 commit 阶段渲染到页面中，通过把 fiberRoot 的 current 指针指向 workInProgress Fiber 树，使其变成 current Fiber 树
+
+   ![image](https://react.iamkasong.com/img/wipTreeFinish.png)
+
+Update 更新阶段
+
+1. 当点击按钮时候，会触发 render 阶段 ，这时会在内存中构建 workInProgress Fiber 树，workInProgress 可以决定是否复用 current Fiber 的节点，这个决定是否复用的过程就是 React 的 Diff 算法
+
+   ![image](https://react.iamkasong.com/img/wipTreeUpdate.png)
+
+2. 当完成 render 阶段之后，就进入 commit 阶段，fiberRoot 的 current 指针会指向 workInProgress Fiber 树，这时 workInProgress Fiber 树就会变成 current Fiber 树
+
+   ![image](https://react.iamkasong.com/img/currentTreeUpdate.png)
+
+#### render & commit 阶段
+
+- Reconclier 工作被称为 render 阶段，在这个阶段会调用组件的 render 方法
+- Renderer 工作被称为 commit 阶段，就像写代码的时候，需要把代码 commit ，commit 就是把 render 阶段提交的信息渲染到页面上
+- render 和 commit 阶段称为 work，即 React 在工作中，在 Scheduler 中调度的任务不属于 work
+
