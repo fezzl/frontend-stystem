@@ -351,3 +351,15 @@ Update 更新阶段
 - Renderer 工作被称为 commit 阶段，就像写代码的时候，需要把代码 commit ，commit 就是把 render 阶段提交的信息渲染到页面上
 - render 和 commit 阶段称为 work，即 React 在工作中，在 Scheduler 中调度的任务不属于 work
 
+#### diff 算法
+
+diff 算法的本质是将组件生成的 jsx 对象，和 current Fiber 进行比较生成 workInProgress Fiber 的过程。由于 diff 算法本身就会造成性能损耗，将前后两颗树的比较的时间复杂度是 On3 次方。
+
+为了降低 diff 算法的时间复杂度，React 团队做除了下面的限制：
+
+1. 只对同级的元素进行 diff，如果一个元素在更新完跨越了层级，不会对他进行复用
+2. 两个不同类型的元素会产生不同的树，如从 div 变成 p 标签，React 会销毁 div 及其子孙元素，会重新构建 p 及其子孙元素
+3. 开发者可以通过 key 来暗示哪些子元素在不同渲染中保持稳定
+
+
+
