@@ -361,5 +361,43 @@ diff 算法的本质是将组件生成的 jsx 对象，和 current Fiber 进行�
 2. 两个不同类型的元素会产生不同的树，如从 div 变成 p 标签，React 会销毁 div 及其子孙元素，会重新构建 p 及其子孙元素
 3. 开发者可以通过 key 来暗示哪些子元素在不同渲染中保持稳定
 
+#### 状态更新流程
+
+```js
+创建fiberRootNode、rootFiber、updateQueue（`legacyCreateRootFromDOMContainer`）
+
+    |
+    |
+    v
+
+创建Update对象（`updateContainer`）
+
+    |
+    |
+    v
+
+从fiber到root（`markUpdateLaneFromFiberToRoot`）
+
+    |
+    |
+    v
+
+调度更新（`ensureRootIsScheduled`）
+
+    |
+    |
+    v
+
+render阶段（`performSyncWorkOnRoot` 或 `performConcurrentWorkOnRoot`）
+
+    |
+    |
+    v
+
+commit阶段（`commitRoot`）
+```
+
+
+
 
 
