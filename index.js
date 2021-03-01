@@ -30,7 +30,7 @@ function BitMap() {
   this.data = [];
 }
 
-BitMap.prototype.getIndex = (num) => parent(num / 2);
+BitMap.prototype.getIndex = (num) => parseInt(num / 2);
 BitMap.prototype.getPos = (num) => num % 32;
 
 BitMap.prototype.add = function (num) {
