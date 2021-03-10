@@ -14,6 +14,22 @@ React 通过比较子元素的 key 属性，判断该元素是新增，移动，
 
 ---
 
+### 虚拟 DOM
+
+因为直接操作 DOM 会造成重绘重排，如果 DOM 节点比较多和复杂的时候，这种操作会大大降低渲染效率，所以需要通过虚拟 DOM 来减少对 DOM 的操作次数
+
+#### 什么是虚拟 DOM
+
+虚拟 DOM 要解决的问题：
+
+- 将页面改变的内容应用到虚拟 DOM 上，而不是直接应用到真实 DOM 上
+- 变换被应用到虚拟 DOM 上，虚拟 DOM 并不着急去渲染页面，仅仅调整内部的状态，这样操作虚拟 DOM 的代价就变得很轻
+- 在虚拟 DOM 中收集到足够的变化后，再把这些变化一次性应用到真实 DOM 上
+
+![image](https://static001.geekbang.org/resource/image/cf/90/cf2089ad62af94881757c2f2de277890.png)
+
+---
+
 ### Hooks
 
 #### Hooks 解决的问题
@@ -67,6 +83,8 @@ subsequent render
 event handing
 
 ![image](https://miro.medium.com/max/1260/1*3L8YJnn5eV5ev1FuN6rKSQ.png)
+
+---
 
 ### React 理念
 
