@@ -519,7 +519,7 @@ function Child(name, age) {
   Parent.call(this, name)
   this.age = age
 }
-// 关键一步，让子类的原型能直接访问父类的圆心
+// 关键一步，让子类的原型能直接访问父类的原型
 Child.prototype = Object.create(Parent.prototype)
 Child.prototype.constructor = Child
 
