@@ -1,4 +1,4 @@
-### js flat
+### flat
 
 #### 递归
 
@@ -203,3 +203,182 @@ function throttle(func, wait) {
   }
 }
 ```
+
+---
+
+### reduce
+
+```js
+Array.prototype.myReduce = function(executor, initialValue) {
+  const arr = this
+  let startIndex = 1
+  let accumulator = arr[0]
+  if (initialValue !== undefined) {
+    startIndex = 0
+    accumulator = initialValue
+  }
+  for (let index = startIndex; index < arr.length; index++) {
+    accumulator = executor(accumulator, arr[index], index, arr)
+  }
+  return accumulator
+}
+```
+
+---
+
+### Promise
+
+#### Promise 的核心代码
+
+```js
+function Promise(executor) {
+  const self = this
+  self.status = 'pending'
+  self.data = undefined
+  self.onResolvedCallback = []
+  self.onRejectedCallback = []
+  
+  function resolve(value) {
+    if (value instanceof Promise) {
+      return value.then(resolve, reject)
+    }
+    setTimeout(function() {
+      if (self.status === 'pending') {
+        self.status = 'resolved'
+        self.data = value
+        for (let i = 0; i < onResolvedCallback.length; i++) {
+          self.onResolvedCallback[i](value)
+        }
+      }
+    })
+  }
+  
+  function reject(reason) {
+    setTimeout(function() {
+      if (self.status === 'pending') {
+        self.status = 'rejected'
+        self.data = reason
+      }
+      for (let i = 0; i < onRejectedCallback.length; i++) {
+        self.onRejectedCallback[i](reason)
+      }
+    })
+  }
+  
+  try {
+    executor(resolve, reject)
+  } catch(e) {
+    reject(e)
+  }
+}
+
+Promise.prototype.then = function(onReolved, onRejected) {
+  const self = this
+  let promise2
+  
+  onReolved = typeof onReolved === 'function' ? onReolved : function(value) {return value}
+  onRejected = typeof onRejected === 'function' ? onRejected : function(reson) {throw reason}
+	
+  if (self.status === 'resolved') {
+    return promise2 = new Promise(function (resolve, reject) {
+      setTimeout(function() {
+        try {
+          const x = onReolved(self.data)
+          if (x instanceof Promise) {
+            x.then(resolve, reject)
+          }
+          resolve(x)
+        } catch(e) {
+          reject(e)
+        }
+      })
+    })
+  }
+  
+  if (self.status === 'rejected') {
+    return promise2 = new Promise(function(resolve, reject) {
+      setTimeout(function() {
+        try {
+          const x = onRejected(self.data)
+          if (x instanceof Promise) {
+            x.then(resolve, reject)
+          }
+          resolve(x)
+        } catch(e) {
+          reject(e)
+        }
+      })
+    })
+  }
+  
+  if (self.status === 'pending') {
+    return promise2 = new Promise(function(resolve, reject) {
+      self.onResolvedCallback.push(function(value) {
+        try {
+          const x = onRejected(value)
+          if (x instanceof Promise) {
+            x.then(resolve, reject)
+          }
+          resolve(x)
+        } catch(e) {
+          reject(e)
+        }
+      })
+      self.onRejectedCallback.push(function(reason) {
+        try {
+          const x = onReolved(reason)
+          if (x instanceof Promise) {
+            x.then(resolve, reject)
+          }
+          resolve(x)
+        } catch(e) {
+          reject(e)
+        }
+      })
+    })
+  }
+}
+
+Promise.prototype.catch = function(onRejected) {
+  return this.then(null, onRejected)
+}
+```
+
+#### Promise.all
+
+```js
+Promise.all = function(promises) {
+  const res = []
+  return new Promise((resolve, reject) => {
+    for (let i = 0; i < promises.length; i++) {
+      Promise.resolve(promises[i]).then(value => {
+        res[i] = value
+        if (res.length === promises.length) {
+          resolve(res)
+        }
+      }).catch(err => {
+        reject(err)
+      })
+    }
+  })
+}
+```
+
+#### Promise.race
+
+```js
+Promise.race = function(promises) {
+  return new Promise((resolve, reject) => {
+    for (let i = 0; i < promises.length; i++) {
+    	Promise.resolve(promises[i]).then(value => {
+        resolve(value)
+      }).catch(err => {
+        reject(err)
+      })
+    }
+  })
+}
+```
+
+
+
