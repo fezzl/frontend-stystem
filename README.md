@@ -16,7 +16,7 @@
 
 - [js基础](https://github.com/coderzelin/frontend-stystem/blob/master/js%20%E5%9F%BA%E7%A1%80.md)
 
-- js笔试题
+- [js笔试题](https://github.com/fezzl/frontend-stystem/blob/master/js%20%E7%AC%94%E8%AF%95%E9%A2%98.md)
 
 - [es6](https://github.com/coderzelin/frontend-stystem/blob/master/es6.md)
 
