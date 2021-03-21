@@ -380,5 +380,34 @@ Promise.race = function(promises) {
 }
 ```
 
+---
+
+Event Bus
+
+```js
+class EventEmitter {
+  constructor() {
+    this.events = this.events || new Map()
+  }
+  
+  subscribe(type, fn) {
+    if (!this.events.get(type)) {
+      this.events.set(type, fn)
+    }
+  }
+  
+  emit(type, ...args) {
+    const handler = this.events.get(type)
+    handler.apply(this, args)
+  }
+  
+  unsubscribe(type) {
+    this.events.delete(type)
+  }
+}
+```
+
+
+
 
 
