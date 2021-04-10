@@ -315,7 +315,7 @@ Promise.prototype.then = function(onReolved, onRejected) {
     return promise2 = new Promise(function(resolve, reject) {
       self.onResolvedCallback.push(function(value) {
         try {
-          const x = onRejected(value)
+          const x = onReolved(value)
           if (x instanceof Promise) {
             x.then(resolve, reject)
           }
@@ -326,7 +326,7 @@ Promise.prototype.then = function(onReolved, onRejected) {
       })
       self.onRejectedCallback.push(function(reason) {
         try {
-          const x = onReolved(reason)
+          const x = onRejected(reason)
           if (x instanceof Promise) {
             x.then(resolve, reject)
           }
@@ -382,10 +382,10 @@ Promise.race = function(promises) {
 
 ---
 
-Event Bus
+### Event Bus
 
 ```js
-class EventEmitter {
+class EventBus {
   constructor() {
     this.events = this.events || new Map()
   }
