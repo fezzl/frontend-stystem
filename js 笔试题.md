@@ -407,6 +407,32 @@ class EventBus {
 }
 ```
 
+---
+
+### sum 函数
+
+```
+sum(1) == 1;
+sum(1)(2) == 3;
+sum(1)(2, 3, 4)(5) == 15;
+```
+
+```js
+function sum(...args) {
+  let value = 0
+  
+  function innerSum(...args) {
+    value = args.reduce((pre, cur) => pre + cur, value)
+    return innerSum
+  }
+  
+  innerSum.valueOf = function() {
+    return value
+  }
+  
+  return innerSum(...args)
+}
+```
 
 
 
